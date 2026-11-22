@@ -1,0 +1,17 @@
+services:
+  rex-stub:
+    build: .
+    ports:
+      - "${PORT:-8090}:8090"
+    environment:
+      PORT: "8090"
+      API_KEY: ${API_KEY:?define API_KEY en .env o en el entorno}
+      SIM_LATENCY_MS: ${SIM_LATENCY_MS:-0}
+      SIM_FAILURE_RATE: ${SIM_FAILURE_RATE:-0}
+      SIM_FORCE_ERROR: ${SIM_FORCE_ERROR:-false}
+    healthcheck:
+      test: ["CMD", "/rex-stub", "-healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
