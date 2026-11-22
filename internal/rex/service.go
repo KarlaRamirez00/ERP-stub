@@ -77,13 +77,21 @@ func (s *Service) SyncTermination(req TerminationRequest) (Result, error) {
 }
 
 func (s *Service) AnnulTermination(reference string, req AnnulmentRequest) (Result, error) {
+	return s.annul(KindTermination, "una terminación", reference, req)
+}
+
+func (s *Service) AnnulContract(reference string, req AnnulmentRequest) (Result, error) {
+	return s.annul(KindContract, "un contrato", reference, req)
+}
+
+func (s *Service) annul(kind Kind, description, reference string, req AnnulmentRequest) (Result, error) {
 	fields := fieldErrors{}
 	fields.require("reason", req.Reason)
 	if err := fields.asError(); err != nil {
 		return Result{}, err
 	}
-	if !s.repository.Exists(KindTermination, reference) {
-		return Result{}, &NotFoundError{Message: "No existe una terminación con la referencia " + reference + "."}
+	if !s.repository.Exists(kind, reference) {
+		return Result{}, &NotFoundError{Message: "No existe " + description + " con la referencia " + reference + "."}
 	}
 	return Result{ReferenceNumber: reference, Created: false}, nil
 }

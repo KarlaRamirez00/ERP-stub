@@ -35,6 +35,7 @@ $env:API_KEY = "dev-key"; docker compose up --build
 | Método y ruta                                   | Respuesta                                       |
 | ----------------------------------------------- | ----------------------------------------------- |
 | `POST /api/v1/contracts`                        | 201 `{"referenceNumber":"REX-000001"}`          |
+| `POST /api/v1/contracts/{ref}/annulment`        | 200 con la misma referencia                     |
 | `POST /api/v1/terminations`                     | 201 `{"referenceNumber":"REX-TERM-000001"}`     |
 | `POST /api/v1/terminations/{ref}/annulment`     | 200 con la misma referencia                     |
 | `POST /api/v1/annexes`                          | 201 `{"referenceNumber":"REX-ANX-000001"}`      |

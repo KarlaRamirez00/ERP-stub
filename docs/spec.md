@@ -20,6 +20,7 @@ Puerto actual en `rrhh-server` (`RexPlusClient`), hoy con adaptador sin red (`Re
 | Método del puerto                | Endpoint del stub                              |
 | -------------------------------- | ---------------------------------------------- |
 | `syncContract(Contract)`         | `POST /api/v1/contracts`                       |
+| `annulContract(Contract, reason)` | `POST /api/v1/contracts/{ref}/annulment`      |
 | `syncTermination(Termination)`   | `POST /api/v1/terminations`                    |
 | `annulTermination(Termination)`  | `POST /api/v1/terminations/{ref}/annulment`    |
 | `syncAnnex(Annex)`               | `POST /api/v1/annexes`                         |

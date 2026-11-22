@@ -151,6 +151,44 @@ func TestAnnulTerminationRejectsUnknownOrWrongKindReference(t *testing.T) {
 	}
 }
 
+func TestAnnulContractIsIdempotent(t *testing.T) {
+	service := newService()
+	contract := syncedContract(t, service)
+
+	for range 2 {
+		result, err := service.AnnulContract(contract, rex.AnnulmentRequest{Reason: "No se presentó a trabajar"})
+		if err != nil || result.ReferenceNumber != contract || result.Created {
+			t.Fatalf("resultado inesperado: %+v, err=%v", result, err)
+		}
+	}
+}
+
+func TestAnnulContractRejectsUnknownOrWrongKindReference(t *testing.T) {
+	service := newService()
+	contract := syncedContract(t, service)
+	termination, _ := service.SyncTermination(rex.TerminationRequest{
+		ExternalID: "1", ContractReferenceNumber: contract, TerminationDate: "2027-01-15", LegalCause: "ART_159_4",
+	})
+
+	for _, reference := range []string{"REX-000099", termination.ReferenceNumber} {
+		_, err := service.AnnulContract(reference, rex.AnnulmentRequest{Reason: "motivo"})
+
+		var notFound *rex.NotFoundError
+		if !errors.As(err, &notFound) {
+			t.Fatalf("referencia %s: se esperaba NotFoundError, fue %v", reference, err)
+		}
+	}
+}
+
+func TestAnnulContractRequiresReason(t *testing.T) {
+	_, err := newService().AnnulContract("REX-000001", rex.AnnulmentRequest{})
+
+	var validation *rex.ValidationError
+	if !errors.As(err, &validation) || validation.Fields["reason"] == "" {
+		t.Fatalf("se esperaba error en reason, fue %v", err)
+	}
+}
+
 func TestAnnulTerminationRequiresReason(t *testing.T) {
 	_, err := newService().AnnulTermination("REX-TERM-000001", rex.AnnulmentRequest{})
 

@@ -17,6 +17,7 @@ func NewEndpoint(service *Service) *Endpoint {
 
 func (e *Endpoint) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/v1/contracts", e.syncContract)
+	mux.HandleFunc("POST /api/v1/contracts/{reference}/annulment", e.annulContract)
 	mux.HandleFunc("POST /api/v1/terminations", e.syncTermination)
 	mux.HandleFunc("POST /api/v1/terminations/{reference}/annulment", e.annulTermination)
 	mux.HandleFunc("POST /api/v1/annexes", e.syncAnnex)
@@ -29,6 +30,15 @@ func (e *Endpoint) syncContract(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := e.service.SyncContract(req)
+	respond(w, result, err)
+}
+
+func (e *Endpoint) annulContract(w http.ResponseWriter, r *http.Request) {
+	var req AnnulmentRequest
+	if !httpx.DecodeJSON(w, r, &req) {
+		return
+	}
+	result, err := e.service.AnnulContract(r.PathValue("reference"), req)
 	respond(w, result, err)
 }
 

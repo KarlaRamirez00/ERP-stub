@@ -132,6 +132,24 @@ func TestCA5AnnulmentUnknownReturns404AndRepeatedReturns200(t *testing.T) {
 	}
 }
 
+func TestAnnulContractUnknownReturns404AndRepeatedReturns200(t *testing.T) {
+	handler := newHandler(simulation.Settings{})
+	annulBody := `{"reason":"No se presentó a trabajar"}`
+
+	unknown := do(handler, http.MethodPost, "/api/v1/contracts/REX-000099/annulment", annulBody, apiKey)
+	if unknown.Code != http.StatusNotFound {
+		t.Fatalf("esperado 404, fue %d", unknown.Code)
+	}
+
+	contract := reference(t, do(handler, http.MethodPost, "/api/v1/contracts", validContractBody, apiKey))
+	for i := 0; i < 2; i++ {
+		rec := do(handler, http.MethodPost, "/api/v1/contracts/"+contract+"/annulment", annulBody, apiKey)
+		if rec.Code != http.StatusOK || reference(t, rec) != contract {
+			t.Fatalf("anulación %d: esperado 200 con %s, fue %d (%s)", i+1, contract, rec.Code, rec.Body.String())
+		}
+	}
+}
+
 func TestCA6ForceErrorReturns503ButHealthStaysUp(t *testing.T) {
 	handler := newHandler(simulation.Settings{ForceError: true})
 
